@@ -1,4 +1,4 @@
-﻿namespace HabitLogger
+﻿namespace HabitLogger.Models
 {
     internal class DrinkWater
     {

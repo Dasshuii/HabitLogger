@@ -1,13 +1,12 @@
-﻿using Microsoft.Data.Sqlite;
-using System.Data;
+﻿using HabitLogger.Models;
+using Microsoft.Data.Sqlite;
 
-
-namespace HabitLogger
+namespace HabitLogger.Data
 {
     internal class DatabaseManager {
-        const string connectionString = @"Data Source=habit_logger.db";
+        private static readonly string connectionString = @"Data Source=habit_logger.db";
 
-        public void CreateTables()
+        public static void CreateTables()
         {
             const string queryString = "CREATE TABLE IF NOT EXISTS drinking_water (" +
                 "id INTEGER NOT NULL PRIMARY KEY," +
@@ -24,7 +23,7 @@ namespace HabitLogger
             conn.Close();
         }
 
-        public List<DrinkWater> GetDrinkWaterLog()
+        public static List<DrinkWater> GetDrinkWaterLog()
         {
             List<DrinkWater> drinkingLog = [];
 
@@ -51,7 +50,7 @@ namespace HabitLogger
             return drinkingLog;
         }
 
-        public void InsertRecord(DrinkWater record)
+        public static void InsertRecord(DrinkWater record)
         {
             using SqliteConnection conn = new(connectionString);
             SqliteCommand command = new("INSERT INTO drinking_water (date, quantity) VALUES (@date, @quantity);", conn);
@@ -63,10 +62,28 @@ namespace HabitLogger
             conn.Close();
         }
 
-        public void DeleteRecord(int id)
+        public static void DeleteRecord(int id)
         {
             using SqliteConnection conn = new(connectionString);
-            SqliteCommand command = new
+            SqliteCommand command = new("DELETE FROM drinking_water WHERE id = @id", conn);
+            command.Parameters.AddWithValue("@id", id);
+            conn.Open();
+            command.ExecuteNonQuery();
+            conn.Close();
+        }
+
+        public static void UpdateRecord(int id, DateTime date, int quantity) 
+        {
+            using SqliteConnection conn = new(connectionString);
+            SqliteCommand command = new("UPDATE drinking_water SET date = @date, quantity = @quantity WHERE id = @id", conn);
+
+            command.Parameters.AddWithValue("@id", id);
+            command.Parameters.AddWithValue("@date", date);
+            command.Parameters.AddWithValue("@quantity", quantity);
+            
+            conn.Open();
+            command.ExecuteNonQuery();
+            conn.Close();
         }
     }
 }
